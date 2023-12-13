@@ -29,16 +29,8 @@ COPY . .
 # ENV NEXT_TELEMETRY_DISABLED 1
 
 RUN npm run build
-
-
-# setting prisma
-FROM base AS prisma
-WORKDIR /app
-
-COPY --from=builder /app/start.sh ./start.sh
-RUN chmod +x start.sh
-
-CMD  [ "start.sh" ]
+RUN npm run prisma:gererate
+RUN npm run prisma:push
 
 
 # Production image, copy all the files and run next
