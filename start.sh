@@ -1,3 +1,4 @@
-npx prisma gererate
+npx prisma generate
 npx prisma db push
-node server.js
+npm run build
+npm run start
