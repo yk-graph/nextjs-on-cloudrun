@@ -88,5 +88,8 @@ COPY tsconfig.json .
 
 RUN chmod +x start.sh
 
+EXPOSE 3000
+ENV PORT 3000
+
 # prismaのclientを生成し、パッケージマネージャーに応じてNext.jsの開発サーバーを起動
 CMD [ "./start.sh" ]
