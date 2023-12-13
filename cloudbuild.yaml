@@ -35,3 +35,6 @@ steps:
 
 images:
   - "asia-northeast1-docker.pkg.dev/yk-port-for-study/test-repo/test-image:v1"
+
+options:
+  logging: CLOUD_LOGGING_ONLY
