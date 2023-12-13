@@ -1,49 +1,40 @@
 steps:
-  - name: gcr.io/cloud-builders/docker
+  # Build the container image
+  - name: "gcr.io/cloud-builders/docker"
     args:
-      - build
-      - "--no-cache"
-      - "-t"
-      - >-
-        $_AR_HOSTNAME/$PROJECT_ID/cloud-run-source-deploy/$REPO_NAME/$_SERVICE_NAME:$COMMIT_SHA
-      - .
-      - "-f"
-      - Dockerfile
-    id: Build
-  - name: gcr.io/cloud-builders/docker
+      [
+        "build",
+        "-t",
+        "asia-northeast1-docker.pkg.dev/yk-port-for-study/test-repo/test-image:v1",
+        ".",
+      ]
+
+  # Push the image to Artifact Registry
+  - name: "gcr.io/cloud-builders/docker"
     args:
-      - push
-      - >-
-        $_AR_HOSTNAME/$PROJECT_ID/cloud-run-source-deploy/$REPO_NAME/$_SERVICE_NAME:$COMMIT_SHA
-    id: Push
-  - name: "gcr.io/google.com/cloudsdktool/cloud-sdk:slim"
+      [
+        "push",
+        "asia-northeast1-docker.pkg.dev/yk-port-for-study/test-repo/test-image:v1",
+      ]
+
+  # Build the container image
+  - name: "gcr.io/google.com/cloudsdktool/cloud-sdk"
+    entrypoint: "gcloud"
     args:
-      - run
-      - services
-      - update
-      - $_SERVICE_NAME
-      - "--platform=managed"
-      - >-
-        --image=$_AR_HOSTNAME/$PROJECT_ID/cloud-run-source-deploy/$REPO_NAME/$_SERVICE_NAME:$COMMIT_SHA
-      - >-
-        --labels=managed-by=gcp-cloud-build-deploy-cloud-run,commit-sha=$COMMIT_SHA,gcb-build-id=$BUILD_ID,gcb-trigger-id=$_TRIGGER_ID
-      - "--region=$_DEPLOY_REGION"
-      - "--quiet"
-    id: Deploy
-    entrypoint: gcloud
+      [
+        "run",
+        "deploy",
+        "--image",
+        "asia-northeast1-docker.pkg.dev/yk-port-for-study/test-repo/test-image:v1",
+        "--region",
+        "asia-northeast1",
+        "--platform",
+        "managed",
+        "--allow-unauthenticated",
+      ]
+
 images:
-  - >-
-    $_AR_HOSTNAME/$PROJECT_ID/cloud-run-source-deploy/$REPO_NAME/$_SERVICE_NAME:$COMMIT_SHA
+  - "asia-northeast1-docker.pkg.dev/yk-port-for-study/test-repo/test-image:v1"
+
 options:
-  substitutionOption: ALLOW_LOOSE
   logging: CLOUD_LOGGING_ONLY
-substitutions:
-  _PLATFORM: managed
-  _SERVICE_NAME: test-image
-  _DEPLOY_REGION: asia-northeast1
-  _AR_HOSTNAME: asia-northeast1-docker.pkg.dev
-  _TRIGGER_ID: 65aac978-5553-440d-8f24-7084dccadb77
-tags:
-  - gcp-cloud-build-deploy-cloud-run
-  - gcp-cloud-build-deploy-cloud-run-managed
-  - test-image
